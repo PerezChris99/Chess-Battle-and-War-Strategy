@@ -122,6 +122,8 @@ STATE_GAME_OVER  = "GAME_OVER"
 STATE_TUTORIAL   = "TUTORIAL"
 STATE_SETTINGS   = "SETTINGS"
 STATE_PROMOTION  = "PROMOTION"
+STATE_LEADERBOARD = "LEADERBOARD"
+STATE_ANALYSIS   = "ANALYSIS"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Animation & Timing
@@ -137,6 +139,7 @@ ASSETS_DIR   = os.path.join(PROJECT_ROOT, "assets")
 FONTS_DIR    = os.path.join(ASSETS_DIR, "fonts")
 SOUNDS_DIR   = os.path.join(ASSETS_DIR, "sounds")
 IMAGES_DIR   = os.path.join(ASSETS_DIR, "images")
+DATA_DIR     = os.path.join(PROJECT_ROOT, "data")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Default Time Controls  (seconds)

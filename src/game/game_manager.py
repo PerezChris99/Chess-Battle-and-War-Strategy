@@ -22,6 +22,8 @@ from src.game.clock import ChessClock
 from src.game.sound_manager import SoundManager
 from src.game.save_load import SaveLoadManager
 from src.game.post_game_analysis import PostGameAnalyzer, GameAnalysis
+from src.competitive.ranking import RankingEngine, RatingChange
+from src.competitive.stats import StatsTracker
 from src.utils.config import Config
 from src.utils.constants import (
     BOARD_OFFSET_X, BOARD_OFFSET_Y, SQUARE_SIZE,
@@ -50,7 +52,10 @@ class GameManager:
         )
         self.save_manager = SaveLoadManager()
         self.analyzer = PostGameAnalyzer()
+        self.ranking = RankingEngine()
+        self.stats_tracker = StatsTracker()
         self.last_analysis: Optional[GameAnalysis] = None
+        self.last_rating_change: Optional[RatingChange] = None
 
         # Player settings
         self.player_color = chess.WHITE if config.get("player_color") == "white" else chess.BLACK
@@ -118,6 +123,7 @@ class GameManager:
         self.promoting = False
         self.eval_score = 0
         self.intro_narrative = self.narrator.get_opening_text()
+        self.last_rating_change = None
 
         self.sound.play("game_start")
 
@@ -448,6 +454,50 @@ class GameManager:
             )
         except Exception:
             self.last_analysis = None
+
+        # Process ranking & stats
+        try:
+            difficulty = self.config.get("difficulty", "SOLDIER")
+            player_color = self.config.get("player_color", "white")
+            game_mode = self.config.get("game_mode", "ranked")
+            accuracy = self.last_analysis.accuracy if self.last_analysis else None
+
+            # Count captures and checks for stats
+            captures = sum(1 for m in self.history.moves if m.is_capture)
+            player_moves = [m for m in self.history.moves if m.color == player_color]
+            checks = sum(1 for m in player_moves if m.is_check)
+            castled = any(m.is_castling for m in player_moves)
+            duration = self.clock.elapsed_seconds if hasattr(self.clock, 'elapsed_seconds') else 0.0
+
+            self.last_rating_change = self.ranking.process_match(
+                player_name=self.config.get("player_name", "Player"),
+                difficulty=difficulty,
+                result=self.result_text,
+                player_color=player_color,
+                moves_count=self.history.count,
+                duration=duration,
+                opening_name=self.opening_name or "",
+                accuracy=accuracy,
+                game_mode=game_mode,
+            )
+
+            # Record detailed stats
+            player_won = (
+                (self.result_text == "1-0" and player_color == "white") or
+                (self.result_text == "0-1" and player_color == "black")
+            )
+            self.stats_tracker.record_game_stats(
+                player_name=self.config.get("player_name", "Player"),
+                moves_count=len(player_moves),
+                captures=captures,
+                checks=checks,
+                castled=castled,
+                accuracy=accuracy,
+                won=player_won,
+                duration=duration,
+            )
+        except Exception:
+            self.last_rating_change = None
 
     def save_game(self) -> str:
         """Manually save the current game. Returns filepath."""

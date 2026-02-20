@@ -24,12 +24,14 @@ class ChessClock:
         self._running = False
         self._white_turn = True
         self._last_tick: float = 0.0
+        self._start_real_time: float = 0.0  # wall-clock start
 
     def start(self) -> None:
         """Start the clock (call after the first move)."""
         if not self.unlimited:
             self._running = True
             self._last_tick = time.time()
+        self._start_real_time = time.time()
 
     def stop(self) -> None:
         """Pause the clock entirely."""
@@ -90,6 +92,13 @@ class ChessClock:
     def active_color_name(self) -> str:
         return "White" if self._white_turn else "Black"
 
+    @property
+    def elapsed_seconds(self) -> float:
+        """Total wall-clock time since the clock started."""
+        if self._start_real_time == 0:
+            return 0.0
+        return time.time() - self._start_real_time
+
     def reset(self, time_control: str = DEFAULT_TIME_CONTROL) -> None:
         base, increment = TIME_CONTROLS.get(time_control, TIME_CONTROLS[DEFAULT_TIME_CONTROL])
         self.base_time = base
@@ -99,3 +108,4 @@ class ChessClock:
         self.unlimited = base == 0
         self._running = False
         self._white_turn = True
+        self._start_real_time = 0.0
