@@ -1,6 +1,13 @@
 """
 Chess Battle & War Strategy — Main Entry Point.
 
+"The board remembers what the mind forgets — every sacrifice carries
+the weight of war, and only those who master patience will conquer."
+    — Perez
+
+Copyright (c) 2026 Perez. All rights reserved.
+Website: https://perezchris.netlify.app
+
 Launches the Pygame application, manages the top-level game loop,
 and delegates to the appropriate screen (menu, game, tutorial, settings).
 """

@@ -10,8 +10,10 @@ from __future__ import annotations
 import pygame
 from typing import Any
 
-from src.competitive.achievements import AchievementEngine, CATEGORIES, RARITY_ORDER as ACH_RARITY
+from src.competitive.achievements import AchievementEngine, CATEGORIES
 from src.competitive.prizes import PrizeManager, RARITY_ORDER, PrizeDef
+
+ACH_RARITY = RARITY_ORDER
 from src.utils.constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT,
     BG_COLOR, PANEL_BG, PANEL_BORDER, HEADER_BG,

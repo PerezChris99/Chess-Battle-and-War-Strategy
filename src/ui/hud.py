@@ -290,7 +290,7 @@ class HUD:
         screen.blit(overlay, (0, 0))
 
         # Result box
-        box_w, box_h = 500, 250
+        box_w, box_h = 500, 270
         box_x = (screen.get_width() - box_w) // 2
         box_y = (screen.get_height() - box_h) // 2
         pygame.draw.rect(screen, PANEL_BG, (box_x, box_y, box_w, box_h), border_radius=10)
@@ -311,6 +311,13 @@ class HUD:
             rendered = self._narrative_font.render(line, True, TEXT_COLOR)
             screen.blit(rendered, (box_x + 20, y))
             y += 22
+
+        # Quote
+        q = self._small_font.render(
+            '"The board remembers what the mind forgets" — Perez',
+            True, TEXT_GOLD,
+        )
+        screen.blit(q, (box_x + (box_w - q.get_width()) // 2, box_y + box_h - 55))
 
         # Restart hint
         hint = self._small_font.render("ENTER: New Battle  •  A: Analysis  •  L: Leaderboard  •  T: Trophies  •  S: Save  •  ESC: Menu", True, TEXT_DIM)

@@ -1,6 +1,9 @@
 # ♔ Chess Battle & War Strategy
 
-> *An immersive chess game that transforms every match into a military battle — powered by Magnus Carlsen's playing style.*
+> *"The board remembers what the mind forgets — every sacrifice carries the weight of war, and only those who master patience will conquer."*  
+> — **Perez**
+
+An immersive chess game that transforms every match into a military battle — powered by Magnus Carlsen's playing style.
 
 ## 🎮 Features
 
@@ -58,6 +61,11 @@ The tutorial system teaches chess through a military lens:
 
 See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for full architecture details.
 
+## 👤 Author
+
+**Perez**  
+🌐 [perezchris.netlify.app](https://perezchris.netlify.app)
+
 ---
 
-*"In chess, as in war, the one who sees further wins."*
+© 2026 Perez. All rights reserved.

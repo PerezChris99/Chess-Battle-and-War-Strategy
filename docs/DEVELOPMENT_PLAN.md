@@ -1,6 +1,7 @@
 # ♔ Chess Battle & War Strategy — Development Plan
 
-> *"Every chess game is a battle. Every move, a command. Learn to think like Magnus Carlsen — the Supreme Commander."*
+> *"The board remembers what the mind forgets — every sacrifice carries the weight of war, and only those who master patience will conquer."*  
+> — **Perez**
 
 ---
 
@@ -432,4 +433,4 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 
 ---
 
-*"In chess, as in war, the one who sees further wins." — Chess Battle & War Strategy*
+*"The board remembers what the mind forgets — every sacrifice carries the weight of war, and only those who master patience will conquer." — Perez*
