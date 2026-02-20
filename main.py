@@ -21,6 +21,7 @@ from src.utils.constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TITLE, BG_COLOR,
     STATE_MENU, STATE_PLAYING, STATE_GAME_OVER,
     STATE_TUTORIAL, STATE_SETTINGS, STATE_LEADERBOARD, STATE_ANALYSIS,
+    STATE_TROPHIES,
 )
 from src.utils.config import Config
 from src.game.game_manager import GameManager
@@ -29,6 +30,7 @@ from src.ui.hud import HUD
 from src.ui.menu import MainMenu, NewGameSetup, SettingsMenu
 from src.ui.analysis_screen import AnalysisScreen
 from src.ui.leaderboard_screen import LeaderboardScreen
+from src.ui.trophy_cabinet import TrophyCabinet
 from src.tutorial.lesson_manager import LessonManager
 
 
@@ -56,6 +58,7 @@ class Application:
         self.lesson_manager = LessonManager(self.config)
         self.analysis_screen = AnalysisScreen()
         self.leaderboard_screen = LeaderboardScreen()
+        self.trophy_cabinet = TrophyCabinet()
 
         # Game state
         self.state = STATE_MENU
@@ -114,6 +117,8 @@ class Application:
             self._handle_analysis_event(event)
         elif self.state == STATE_LEADERBOARD:
             self._handle_leaderboard_event(event)
+        elif self.state == STATE_TROPHIES:
+            self._handle_trophies_event(event)
 
     def _handle_menu_event(self, event: pygame.event.Event) -> None:
         if self.sub_state == "MAIN":
@@ -127,6 +132,11 @@ class Application:
                     self.config.get("player_name", "Player")
                 )
                 self.state = STATE_LEADERBOARD
+            elif result == "TROPHIES":
+                self.trophy_cabinet.refresh(
+                    self.config.get("player_name", "Player")
+                )
+                self.state = STATE_TROPHIES
             elif result == "SETTINGS":
                 self.state = STATE_SETTINGS
             elif result == "QUIT":
@@ -183,6 +193,12 @@ class Application:
                             "promoted": rc.promoted,
                         })
                     self.state = STATE_LEADERBOARD
+                elif event.key == pygame.K_t:
+                    # Show trophy cabinet
+                    self.trophy_cabinet.refresh(
+                        self.config.get("player_name", "Player")
+                    )
+                    self.state = STATE_TROPHIES
             return
 
         self.game_manager.handle_event(event)
@@ -212,6 +228,12 @@ class Application:
 
     def _handle_leaderboard_event(self, event: pygame.event.Event) -> None:
         result = self.leaderboard_screen.handle_event(event)
+        if result == "BACK":
+            self.state = STATE_MENU
+            self.sub_state = "MAIN"
+
+    def _handle_trophies_event(self, event: pygame.event.Event) -> None:
+        result = self.trophy_cabinet.handle_event(event)
         if result == "BACK":
             self.state = STATE_MENU
             self.sub_state = "MAIN"
@@ -259,6 +281,9 @@ class Application:
 
         elif self.state == STATE_LEADERBOARD:
             self.leaderboard_screen.draw(self.screen)
+
+        elif self.state == STATE_TROPHIES:
+            self.trophy_cabinet.draw(self.screen)
 
     def _draw_game(self) -> None:
         gm = self.game_manager

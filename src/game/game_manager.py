@@ -24,6 +24,8 @@ from src.game.save_load import SaveLoadManager
 from src.game.post_game_analysis import PostGameAnalyzer, GameAnalysis
 from src.competitive.ranking import RankingEngine, RatingChange
 from src.competitive.stats import StatsTracker
+from src.competitive.achievements import AchievementEngine, AchievementDef
+from src.competitive.prizes import PrizeManager
 from src.utils.config import Config
 from src.utils.constants import (
     BOARD_OFFSET_X, BOARD_OFFSET_Y, SQUARE_SIZE,
@@ -54,8 +56,11 @@ class GameManager:
         self.analyzer = PostGameAnalyzer()
         self.ranking = RankingEngine()
         self.stats_tracker = StatsTracker()
+        self.achievements = AchievementEngine()
+        self.prize_manager = PrizeManager()
         self.last_analysis: Optional[GameAnalysis] = None
         self.last_rating_change: Optional[RatingChange] = None
+        self.last_unlocked_achievements: list[AchievementDef] = []
 
         # Player settings
         self.player_color = chess.WHITE if config.get("player_color") == "white" else chess.BLACK
@@ -124,6 +129,7 @@ class GameManager:
         self.eval_score = 0
         self.intro_narrative = self.narrator.get_opening_text()
         self.last_rating_change = None
+        self.last_unlocked_achievements = []
 
         self.sound.play("game_start")
 
@@ -496,6 +502,41 @@ class GameManager:
                 won=player_won,
                 duration=duration,
             )
+
+            # Track fast wins for achievements
+            if player_won and self.history.count <= 40:  # ≤20 full moves
+                from src.competitive.stats import StatsTracker
+                st = StatsTracker()
+                st.increment_stat(self.config.get("player_name", "Player"), "fast_wins", 1)
+
+            # Check achievements
+            match_context = {
+                "difficulty": difficulty,
+                "player_won": player_won,
+                "player_color": player_color,
+                "moves_count": self.history.count,
+            }
+            self.last_unlocked_achievements = self.achievements.check_unlocks(
+                self.config.get("player_name", "Player"),
+                match_context,
+            )
+
+            # Award prizes from unlocked achievements
+            for ach in self.last_unlocked_achievements:
+                if ach.prize_id:
+                    self.prize_manager.award_prize(
+                        self.config.get("player_name", "Player"),
+                        ach.prize_id,
+                        source="achievement",
+                    )
+
+            # Resolve any pending wager
+            pending = self.prize_manager.get_pending_wager(
+                self.config.get("player_name", "Player")
+            )
+            if pending:
+                self.prize_manager.resolve_wager(pending["id"], player_won)
+
         except Exception:
             self.last_rating_change = None
 

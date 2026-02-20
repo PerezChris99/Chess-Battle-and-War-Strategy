@@ -82,12 +82,14 @@ class MainMenu:
         self.btn_tutorial = Button(cx, by + 70, bw, bh, "📖  WAR ACADEMY", self._button_font)
         self.btn_leaderboard = Button(cx, by + 140, bw, bh, "🏆  LEADERBOARD", self._button_font,
                                       (60, 70, 50), (80, 95, 65))
-        self.btn_settings = Button(cx, by + 210, bw, bh, "⚙  SETTINGS", self._button_font)
-        self.btn_quit     = Button(cx, by + 280, bw, bh, "🚪  RETREAT", self._button_font,
+        self.btn_trophies = Button(cx, by + 210, bw, bh, "🎖  TROPHIES", self._button_font,
+                                   (70, 55, 70), (95, 70, 95))
+        self.btn_settings = Button(cx, by + 280, bw, bh, "⚙  SETTINGS", self._button_font)
+        self.btn_quit     = Button(cx, by + 350, bw, bh, "🚪  RETREAT", self._button_font,
                                    (80, 40, 40), (110, 50, 50))
 
         self.buttons = [self.btn_new_game, self.btn_tutorial, self.btn_leaderboard,
-                        self.btn_settings, self.btn_quit]
+                        self.btn_trophies, self.btn_settings, self.btn_quit]
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         """Returns action string or None."""
@@ -101,6 +103,8 @@ class MainMenu:
                 return "TUTORIAL"
             if self.btn_leaderboard.is_clicked(event.pos):
                 return "LEADERBOARD"
+            if self.btn_trophies.is_clicked(event.pos):
+                return "TROPHIES"
             if self.btn_settings.is_clicked(event.pos):
                 return "SETTINGS"
             if self.btn_quit.is_clicked(event.pos):
