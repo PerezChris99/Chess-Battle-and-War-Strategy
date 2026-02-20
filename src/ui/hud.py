@@ -313,7 +313,7 @@ class HUD:
             y += 22
 
         # Restart hint
-        hint = self._small_font.render("Press ENTER for new battle  •  ESC for menu", True, TEXT_DIM)
+        hint = self._small_font.render("ENTER: New Battle  •  A: Analysis  •  S: Save  •  ESC: Menu", True, TEXT_DIM)
         screen.blit(hint, (box_x + (box_w - hint.get_width()) // 2, box_y + box_h - 35))
 
     # ── Utility ─────────────────────────────────────────────────

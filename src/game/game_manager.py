@@ -19,6 +19,9 @@ from src.engine.opening_book import OpeningBook
 from src.narrative.battle_narrator import BattleNarrator
 from src.game.move_history import MoveHistory
 from src.game.clock import ChessClock
+from src.game.sound_manager import SoundManager
+from src.game.save_load import SaveLoadManager
+from src.game.post_game_analysis import PostGameAnalyzer, GameAnalysis
 from src.utils.config import Config
 from src.utils.constants import (
     BOARD_OFFSET_X, BOARD_OFFSET_Y, SQUARE_SIZE,
@@ -41,6 +44,13 @@ class GameManager:
         self.history = MoveHistory()
         self.clock = ChessClock(config.get("time_control", "unlimited"))
         self.opening_book = OpeningBook()
+        self.sound = SoundManager(
+            enabled=config.get("sound_enabled", True),
+            volume=config.get("volume", 0.7),
+        )
+        self.save_manager = SaveLoadManager()
+        self.analyzer = PostGameAnalyzer()
+        self.last_analysis: Optional[GameAnalysis] = None
 
         # Player settings
         self.player_color = chess.WHITE if config.get("player_color") == "white" else chess.BLACK
@@ -108,6 +118,8 @@ class GameManager:
         self.promoting = False
         self.eval_score = 0
         self.intro_narrative = self.narrator.get_opening_text()
+
+        self.sound.play("game_start")
 
         # If player is Black, AI moves first
         if self.player_color == chess.BLACK:
@@ -336,6 +348,17 @@ class GameManager:
             opening_name=self.opening_name,
         )
 
+        # Play sound
+        is_checkmate_sound = False
+        is_check_sound = board.gives_check(move)
+        self.sound.play_move(
+            is_capture=board.is_capture(move),
+            is_check=is_check_sound,
+            is_checkmate=is_checkmate_sound,
+            is_castling=board.is_castling(move),
+            is_promotion=move.promotion is not None,
+        )
+
         # Execute on board
         self.engine.make_move(move)
         self.last_move = move
@@ -398,7 +421,49 @@ class GameManager:
         board = self.engine.board
         self.result_text = board.result()
         self.result_narrative = self.narrator.narrate_game_result(board)
+        self.sound.play("game_over")
 
         # Update last move record if it was checkmate
         if board.is_checkmate() and self.history.last_move:
             self.history.last_move.is_checkmate = True
+
+        # Auto-save
+        try:
+            self.save_manager.auto_save(
+                board, self.history,
+                self.config.get("player_color", "white"),
+                self.config.get("difficulty", "SOLDIER"),
+                self.opening_name or "",
+                self.result_text,
+            )
+        except Exception:
+            pass
+
+        # Run analysis
+        try:
+            self.last_analysis = self.analyzer.analyze(
+                self.history, board,
+                self.opening_name or "Unknown",
+                self.result_text,
+            )
+        except Exception:
+            self.last_analysis = None
+
+    def save_game(self) -> str:
+        """Manually save the current game. Returns filepath."""
+        return self.save_manager.save_game(
+            self.engine.board, self.history,
+            self.config.get("player_color", "white"),
+            self.config.get("difficulty", "SOLDIER"),
+            self.opening_name or "",
+            self.result_text if self.game_over else "*",
+        )
+
+    def get_pgn_string(self) -> str:
+        """Get the current game as a PGN string."""
+        return self.save_manager.export_pgn_string(
+            self.engine.board, self.history,
+            self.config.get("player_color", "white"),
+            self.config.get("difficulty", "SOLDIER"),
+            self.result_text if self.game_over else "*",
+        )

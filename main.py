@@ -27,6 +27,7 @@ from src.game.game_manager import GameManager
 from src.ui.board_renderer import BoardRenderer
 from src.ui.hud import HUD
 from src.ui.menu import MainMenu, NewGameSetup, SettingsMenu
+from src.ui.analysis_screen import AnalysisScreen
 from src.tutorial.lesson_manager import LessonManager
 
 
@@ -52,6 +53,7 @@ class Application:
         self.new_game_setup = NewGameSetup()
         self.settings_menu = SettingsMenu(self.config)
         self.lesson_manager = LessonManager(self.config)
+        self.analysis_screen = AnalysisScreen()
 
         # Game state
         self.state = STATE_MENU
@@ -106,6 +108,8 @@ class Application:
             self._handle_tutorial_event(event)
         elif self.state == STATE_SETTINGS:
             self._handle_settings_event(event)
+        elif self.state == "ANALYSIS":
+            self._handle_analysis_event(event)
 
     def _handle_menu_event(self, event: pygame.event.Event) -> None:
         if self.sub_state == "MAIN":
@@ -146,6 +150,17 @@ class Application:
                 elif event.key == pygame.K_ESCAPE:
                     self.state = STATE_MENU
                     self.sub_state = "MAIN"
+                elif event.key == pygame.K_a:
+                    # Show analysis
+                    if self.game_manager.last_analysis:
+                        self.analysis_screen.set_analysis(self.game_manager.last_analysis)
+                        self.state = "ANALYSIS"
+                elif event.key == pygame.K_s:
+                    # Save game
+                    try:
+                        path = self.game_manager.save_game()
+                    except Exception:
+                        pass
             return
 
         self.game_manager.handle_event(event)
@@ -161,6 +176,17 @@ class Application:
         if result == "BACK":
             self.state = STATE_MENU
             self.sub_state = "MAIN"
+
+    def _handle_analysis_event(self, event: pygame.event.Event) -> None:
+        result = self.analysis_screen.handle_event(event)
+        if result == "BACK":
+            self.state = STATE_PLAYING
+        elif result == "SAVE":
+            if self.game_manager:
+                try:
+                    self.game_manager.save_game()
+                except Exception:
+                    pass
 
     # ── Game Management ─────────────────────────────────────────
 
@@ -199,6 +225,9 @@ class Application:
 
         elif self.state == STATE_SETTINGS:
             self.settings_menu.draw(self.screen)
+
+        elif self.state == "ANALYSIS":
+            self.analysis_screen.draw(self.screen)
 
     def _draw_game(self) -> None:
         gm = self.game_manager
