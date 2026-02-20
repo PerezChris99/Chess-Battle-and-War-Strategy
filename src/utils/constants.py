@@ -124,6 +124,7 @@ STATE_SETTINGS   = "SETTINGS"
 STATE_PROMOTION  = "PROMOTION"
 STATE_LEADERBOARD = "LEADERBOARD"
 STATE_ANALYSIS   = "ANALYSIS"
+STATE_TROPHIES   = "TROPHIES"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Animation & Timing

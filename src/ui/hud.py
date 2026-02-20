@@ -313,7 +313,7 @@ class HUD:
             y += 22
 
         # Restart hint
-        hint = self._small_font.render("ENTER: New Battle  •  A: Analysis  •  L: Leaderboard  •  S: Save  •  ESC: Menu", True, TEXT_DIM)
+        hint = self._small_font.render("ENTER: New Battle  •  A: Analysis  •  L: Leaderboard  •  T: Trophies  •  S: Save  •  ESC: Menu", True, TEXT_DIM)
         screen.blit(hint, (box_x + (box_w - hint.get_width()) // 2, box_y + box_h - 35))
 
     # ── Utility ─────────────────────────────────────────────────

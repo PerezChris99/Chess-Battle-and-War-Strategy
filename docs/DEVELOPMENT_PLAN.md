@@ -7,12 +7,12 @@
 ## 📊 Overall Progress
 
 ```
-[██████████████████████████████░░░░░░░░░░] 78% — Phase 8: Prize & Achievement System
+[██████████████████████████████████░░░░░░] 89% — Phase 9: AI Arena — External Models
 ```
 
 **Last Updated:** 2026-02-20  
 **Status:** 🔧 Active Development  
-**Current Phase:** Phase 8 — Prize & Achievement System
+**Current Phase:** Phase 9 — AI Arena — External Models
 
 ---
 
@@ -215,21 +215,22 @@ chess_battle/
 | Stats persistence (SQLite) | ✅ Complete | Auto-save after every game |
 | Comprehensive testing | ✅ Complete | 71/71 unit tests passing |
 
-### Phase 8: Prize & Achievement System ░░░░░░░░░░ 0%
+### Phase 8: Prize & Achievement System ██████████ 100%
 ```
-[░░░░░░░░░░░░░░░░░░░░]
+[████████████████████]
 ```
 | Task | Status | Notes |
 |------|--------|-------|
-| Achievement definitions (30+) | ⬜ Not Started | Battle milestones, tactical feats, streaks |
-| Achievement detection engine | ⬜ Not Started | Real-time tracking during gameplay |
-| Prize catalog & ownership DB | ⬜ Not Started | Titles, badges, war medals, banners |
-| Casual mode (progressive unlocks) | ⬜ Not Started | Earn prizes by winning — no risk |
-| Ranked mode (wager system) | ⬜ Not Started | Stake prizes — winner takes opponent’s prize |
-| War chest / inventory system | ⬜ Not Started | Player’s collection of earned/won prizes |
-| Trophy cabinet UI | ⬜ Not Started | Visual display of achievements & prizes |
-| Prize wagering UI | ⬜ Not Started | Pre-match stake selection, winner reveal |
-| Notification system | ⬜ Not Started | Achievement popups during gameplay |
+| Achievement definitions (30+) | ✅ Complete | 30+ achievements across 10 categories |
+| Achievement detection engine | ✅ Complete | Stat-based + custom logic, real-time tracking |
+| Prize catalog & ownership DB | ✅ Complete | 23 prizes: titles, badges, medals, banners |
+| Casual mode (progressive unlocks) | ✅ Complete | Achievement-driven prize earning |
+| Ranked mode (wager system) | ✅ Complete | Place/resolve wagers, prize at stake |
+| War chest / inventory system | ✅ Complete | Player ownership, grouped trophy cabinet |
+| Trophy cabinet UI | ✅ Complete | Tabbed view, progress bars, rarity colors |
+| Prize wagering UI | ✅ Complete | Wagerable filter, resolve flow |
+| Game-over & menu integration | ✅ Complete | T key, menu button, full state routing |
+| Comprehensive testing | ✅ Complete | 128/128 unit tests passing |
 
 ### Phase 9: AI Arena — External Models ░░░░░░░░░░ 0%
 ```
@@ -424,8 +425,8 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 | 2026-02-20 | Analysis screen UI with accuracy bars & move assessment | Phase 6 |
 | 2026-02-20 | All 34 tests passing — Phase 6 complete | Phase 6 |
 | 2026-02-20 | Development plan expanded — Phases 7-9 defined | Planning |
-| 2026-02-20 | Phase 7: Ranking & Leaderboard System | Phase 7 |
-| 2026-02-20 | Phase 8: Prize & Achievement System | Phase 8 |
+| 2026-02-20 | Phase 7: Ranking & Leaderboard System — 71/71 tests | Phase 7 |
+| 2026-02-20 | Phase 8: Achievements (30+), Prizes (23), Wagering, Trophy Cabinet — 128/128 tests | Phase 8 |
 | 2026-02-20 | Phase 9: AI Arena — External Models (Gemini) | Phase 9 |
 
 ---
