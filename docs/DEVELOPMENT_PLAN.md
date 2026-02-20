@@ -7,20 +7,22 @@
 ## 📊 Overall Progress
 
 ```
-[████████████████████████████████████████] 100% — All Phases Complete!
+[██████████████████████████████░░░░░░░░░░] 78% — Phase 8: Prize & Achievement System
 ```
 
 **Last Updated:** 2026-02-20  
-**Status:** ✅ Complete — Fully Playable  
-**Current Phase:** All phases complete
+**Status:** 🔧 Active Development  
+**Current Phase:** Phase 8 — Prize & Achievement System
 
 ---
 
 ## 🎯 Project Vision
 
-An **immersive, educational chess game** that transforms every chess match into a **military battle scenario**. The AI opponent is modeled after **Magnus Carlsen's** legendary playing style — his positional mastery, endgame dominance, prophylactic thinking, and grinding technique.
+An **immersive, educational, competitive chess game** that transforms every chess match into a **military battle scenario**. The AI opponent is modeled after **Magnus Carlsen's** legendary playing style — his positional mastery, endgame dominance, prophylactic thinking, and grinding technique.
 
-**Goal:** Take a player from beginner to tournament-ready by combining chess fundamentals with strategic military thinking.
+Players compete against progressively stronger AI opponents, earn rankings, unlock achievements, and wager prizes in high-stakes matches. External AI models (Gemini) can join the arena as opponents with their own ratings.
+
+**Goal:** Take a player from beginner to tournament-ready by combining chess fundamentals with strategic military thinking — in a competitive environment where skill is rewarded.
 
 ---
 
@@ -39,6 +41,12 @@ chess_battle/
 │   ├── sounds/                      # Sound effects
 │   └── images/                      # UI assets
 │
+├── data/                            # Persistent data (SQLite)
+│   ├── chess_battle.db              # Main database (rankings, prizes, stats)
+│   └── migrations/                  # Schema versioning
+│
+├── saves/                           # PGN game saves
+│
 ├── src/
 │   ├── __init__.py
 │   ├── engine/                      # Chess logic & AI
@@ -46,13 +54,26 @@ chess_battle/
 │   │   ├── chess_engine.py          # Core chess rules (python-chess wrapper)
 │   │   ├── evaluator.py            # Position evaluation (Magnus-tuned)
 │   │   ├── ai_engine.py            # Search algorithm (Minimax + Alpha-Beta)
-│   │   └── opening_book.py         # Magnus's opening repertoire
+│   │   ├── opening_book.py         # Magnus's opening repertoire
+│   │   └── ai_arena.py             # External AI model adapter (Gemini, etc.)
 │   │
 │   ├── game/                        # Game state management
 │   │   ├── __init__.py
 │   │   ├── game_manager.py         # Central game controller
 │   │   ├── move_history.py         # Move tracking & notation
-│   │   └── clock.py                # Chess clock
+│   │   ├── clock.py                # Chess clock
+│   │   ├── sound_manager.py        # Synthesized audio
+│   │   ├── save_load.py            # PGN save/load
+│   │   └── post_game_analysis.py   # Battle report analysis
+│   │
+│   ├── competitive/                 # Ranking, prizes, leaderboard
+│   │   ├── __init__.py
+│   │   ├── database.py             # SQLite connection & migrations
+│   │   ├── ranking.py              # ELO rating engine
+│   │   ├── leaderboard.py          # Leaderboard logic & queries
+│   │   ├── achievements.py         # Achievement definitions & tracking
+│   │   ├── prizes.py               # Prize catalog, ownership, wagering
+│   │   └── stats.py                # Player & AI statistics tracker
 │   │
 │   ├── ui/                          # Pygame rendering
 │   │   ├── __init__.py
@@ -60,7 +81,11 @@ chess_battle/
 │   │   ├── piece_renderer.py       # Piece drawing (Unicode + custom)
 │   │   ├── menu.py                 # Menu screens
 │   │   ├── hud.py                  # In-game HUD
-│   │   └── animations.py          # Move animations
+│   │   ├── animations.py           # Move animations
+│   │   ├── analysis_screen.py      # Post-game analysis UI
+│   │   ├── leaderboard_screen.py   # Ranking & leaderboard UI
+│   │   ├── trophy_cabinet.py       # Achievements & prizes UI
+│   │   └── arena_screen.py         # AI Arena mode UI
 │   │
 │   ├── narrative/                   # Battle narrative engine
 │   │   ├── __init__.py
@@ -84,7 +109,11 @@ chess_battle/
     ├── __init__.py
     ├── test_engine.py
     ├── test_ai.py
-    └── test_narrative.py
+    ├── test_narrative.py
+    ├── test_phase6.py
+    ├── test_ranking.py
+    ├── test_achievements.py
+    └── test_arena.py
 ```
 
 ---
@@ -169,6 +198,55 @@ chess_battle/
 | Performance optimization | ✅ Complete | Time-limited search, killer moves, history heuristic |
 | Comprehensive testing | ✅ Complete | 34/34 unit tests passing |
 
+### Phase 7: Ranking & Leaderboard System ██████████ 100%
+```
+[████████████████████]
+```
+| Task | Status | Notes |
+|------|--------|-------|
+| SQLite database schema & migrations | ✅ Complete | Players, AI opponents, games, stats tables |
+| ELO rating engine | ✅ Complete | K-factor adjustment, provisional ratings |
+| Player profile & stats tracker | ✅ Complete | Win/loss/draw, accuracy, streaks, time played |
+| AI opponent profiles & ratings | ✅ Complete | Each AI level has persistent rating |
+| Leaderboard queries & logic | ✅ Complete | Global ranking, filtering, sorting |
+| Ranking tier system | ✅ Complete | Bronze → Silver → Gold → Platinum → Diamond → Grandmaster |
+| Leaderboard UI screen | ✅ Complete | Full-screen ranking display with stats |
+| Rating change display in HUD | ✅ Complete | Show ±ELO after each game |
+| Stats persistence (SQLite) | ✅ Complete | Auto-save after every game |
+| Comprehensive testing | ✅ Complete | 71/71 unit tests passing |
+
+### Phase 8: Prize & Achievement System ░░░░░░░░░░ 0%
+```
+[░░░░░░░░░░░░░░░░░░░░]
+```
+| Task | Status | Notes |
+|------|--------|-------|
+| Achievement definitions (30+) | ⬜ Not Started | Battle milestones, tactical feats, streaks |
+| Achievement detection engine | ⬜ Not Started | Real-time tracking during gameplay |
+| Prize catalog & ownership DB | ⬜ Not Started | Titles, badges, war medals, banners |
+| Casual mode (progressive unlocks) | ⬜ Not Started | Earn prizes by winning — no risk |
+| Ranked mode (wager system) | ⬜ Not Started | Stake prizes — winner takes opponent’s prize |
+| War chest / inventory system | ⬜ Not Started | Player’s collection of earned/won prizes |
+| Trophy cabinet UI | ⬜ Not Started | Visual display of achievements & prizes |
+| Prize wagering UI | ⬜ Not Started | Pre-match stake selection, winner reveal |
+| Notification system | ⬜ Not Started | Achievement popups during gameplay |
+
+### Phase 9: AI Arena — External Models ░░░░░░░░░░ 0%
+```
+[░░░░░░░░░░░░░░░░░░░░]
+```
+| Task | Status | Notes |
+|------|--------|-------|
+| AI Arena adapter interface | ⬜ Not Started | Common protocol for all external AI models |
+| Gemini (Google AI) integration | ⬜ Not Started | Via Google AI API — sends FEN, receives UCI move |
+| Model rating & tracking | ⬜ Not Started | Each model gets persistent ELO in leaderboard |
+| Player vs External AI mode | ⬜ Not Started | Same competitive rules, stakes apply |
+| AI vs AI spectator mode | ⬜ Not Started | Watch two AIs battle with live narration |
+| Arena leaderboard (unified) | ⬜ Not Started | Player + all AI models on one ranked board |
+| Arena mode UI | ⬜ Not Started | Model selection, API key config, match setup |
+| Rate limiting & error handling | ⬜ Not Started | API retry, timeout, fallback to local AI |
+| Future: additional model adapters | ⬜ Not Started | Expandable for GPT, Claude, Grok, etc. |
+
 ---
 
 ## 🧠 Magnus Carlsen AI Style Profile
@@ -240,8 +318,8 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 | Core Language | Python 3.10+ | Main development language |
 | Game Framework | Pygame 2.5+ | Rendering, input, audio |
 | Chess Logic | python-chess 1.10+ | Move generation, validation, PGN |
-| AI Search | Custom (Python) | Minimax, Alpha-Beta, Transposition |
-| Configuration | JSON | User preferences persistence |
+| AI Search | Custom (Python) | Minimax, Alpha-Beta, Transposition || External AI | Google Gemini API | LLM-powered chess opponent |
+| Database | SQLite 3 | Rankings, achievements, stats, prizes || Configuration | JSON | User preferences persistence |
 | Testing | pytest | Unit and integration testing |
 
 ---
@@ -255,6 +333,70 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 | 3 | Captain | 4 | Tactical commander — punishes mistakes |
 | 4 | General | 5 | Strategic genius — strong positional play |
 | 5 | Magnus Mode | 6 | Supreme Commander — full Magnus style |
+| 6 | Gemini AI | API | Google’s Gemini — LLM-powered chess |
+
+---
+
+## 🏆 Ranking Tiers
+
+| Tier | ELO Range | Badge | Requirements |
+|------|-----------|-------|--------------|
+| Bronze | 0–1099 | 🥉 | Starting tier for new players |
+| Silver | 1100–1399 | 🥈 | Consistent wins vs Recruit/Soldier |
+| Gold | 1400–1699 | 🥇 | Defeats Captain-level AI regularly |
+| Platinum | 1700–1999 | 💎 | Defeats General-level AI |
+| Diamond | 2000–2499 | 👑 | Reaches master-level play |
+| Grandmaster | 2500+ | ♔ | Defeats Magnus Mode / Top Arena ranking |
+
+---
+
+## 🎮 Game Modes
+
+| Mode | Description | Stakes |
+|------|-------------|--------|
+| **Casual Battle** | Play any AI difficulty, earn prizes progressively | No risk — always earn toward the next achievement |
+| **Ranked Match** | ELO-rated games vs AI — rating changes after each game | Rating points gained/lost; affects tier |
+| **War Wager** | Stake a prize before the match; winner takes the loser’s staked prize | High risk, high reward — can lose prizes |
+| **War Academy** | Tutorial lessons and practice challenges | No stakes — learning mode |
+| **AI Arena** | Challenge external AI models (Gemini) or watch AI vs AI | Rated — all participants on unified leaderboard |
+| **Spectator** | Watch AI vs AI battles with live battle narration | No stakes — entertainment & learning |
+
+---
+
+## 🏅 Achievement Categories (30+)
+
+| Category | Example Achievements |
+|----------|---------------------|
+| **First Blood** | Win your first game, Play 10 games, Play 100 games |
+| **Rank Climber** | Reach Silver, Reach Gold, Reach Platinum, Reach Diamond, Reach Grandmaster |
+| **Giant Slayer** | Beat Soldier, Beat Captain, Beat General, Beat Magnus Mode |
+| **Tactical Master** | Find 10 forks, Find 10 pins, Find 10 skewers, Checkmate with a knight |
+| **Endgame Specialist** | Win 5 endgames, Win with King + Rook vs King, Convert a pawn endgame |
+| **Speed Demon** | Win a bullet game, Win a blitz game under 3 minutes |
+| **Streak Warrior** | Win 3 in a row, Win 5 in a row, Win 10 in a row |
+| **War Collector** | Own 10 prizes, Own 25 prizes, Complete a prize set |
+| **Arena Champion** | Beat Gemini AI, Top the unified leaderboard |
+| **Scholar** | Complete all lessons, Solve all challenges |
+
+---
+
+## 💰 Prize System
+
+### Prize Types
+| Type | Description | Examples |
+|------|-------------|----------|
+| **Titles** | Displayed next to player name | "War Veteran", "Tactical Genius", "Magnus Rival" |
+| **Badges** | Visual icons in leaderboard | ⚔️ Crossed Swords, 🛡️ Shield of Honor, 🔥 Flame of Victory |
+| **War Medals** | Rare collectible rewards | Bronze Star, Silver Eagle, Gold Crown, Diamond Scepter |
+| **Banners** | Profile background themes | "Battlefield Dawn", "Midnight Siege", "Royal Court" |
+
+### Earning Prizes
+- **Casual Mode:** Prizes awarded when achievements are unlocked (no risk)
+- **Ranked Mode:** Rating milestones unlock special prizes
+- **War Wager:** Each player stakes one prize before the match — winner takes both
+  - Minimum rating to wager: Silver tier
+  - Can only wager prizes of same or lower rarity
+  - Protected prizes: some first-time achievements cannot be wagered
 
 ---
 
@@ -281,6 +423,10 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 | 2026-02-20 | AI perf — time limits, killer moves, history heuristic | Phase 6 |
 | 2026-02-20 | Analysis screen UI with accuracy bars & move assessment | Phase 6 |
 | 2026-02-20 | All 34 tests passing — Phase 6 complete | Phase 6 |
+| 2026-02-20 | Development plan expanded — Phases 7-9 defined | Planning |
+| 2026-02-20 | Phase 7: Ranking & Leaderboard System | Phase 7 |
+| 2026-02-20 | Phase 8: Prize & Achievement System | Phase 8 |
+| 2026-02-20 | Phase 9: AI Arena — External Models (Gemini) | Phase 9 |
 
 ---
 

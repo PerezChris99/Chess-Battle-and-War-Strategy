@@ -20,7 +20,7 @@ import pygame
 from src.utils.constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TITLE, BG_COLOR,
     STATE_MENU, STATE_PLAYING, STATE_GAME_OVER,
-    STATE_TUTORIAL, STATE_SETTINGS,
+    STATE_TUTORIAL, STATE_SETTINGS, STATE_LEADERBOARD, STATE_ANALYSIS,
 )
 from src.utils.config import Config
 from src.game.game_manager import GameManager
@@ -28,6 +28,7 @@ from src.ui.board_renderer import BoardRenderer
 from src.ui.hud import HUD
 from src.ui.menu import MainMenu, NewGameSetup, SettingsMenu
 from src.ui.analysis_screen import AnalysisScreen
+from src.ui.leaderboard_screen import LeaderboardScreen
 from src.tutorial.lesson_manager import LessonManager
 
 
@@ -54,6 +55,7 @@ class Application:
         self.settings_menu = SettingsMenu(self.config)
         self.lesson_manager = LessonManager(self.config)
         self.analysis_screen = AnalysisScreen()
+        self.leaderboard_screen = LeaderboardScreen()
 
         # Game state
         self.state = STATE_MENU
@@ -108,8 +110,10 @@ class Application:
             self._handle_tutorial_event(event)
         elif self.state == STATE_SETTINGS:
             self._handle_settings_event(event)
-        elif self.state == "ANALYSIS":
+        elif self.state == STATE_ANALYSIS:
             self._handle_analysis_event(event)
+        elif self.state == STATE_LEADERBOARD:
+            self._handle_leaderboard_event(event)
 
     def _handle_menu_event(self, event: pygame.event.Event) -> None:
         if self.sub_state == "MAIN":
@@ -118,6 +122,11 @@ class Application:
                 self.sub_state = "NEW_GAME_SETUP"
             elif result == "TUTORIAL":
                 self.state = STATE_TUTORIAL
+            elif result == "LEADERBOARD":
+                self.leaderboard_screen.refresh(
+                    self.config.get("player_name", "Player")
+                )
+                self.state = STATE_LEADERBOARD
             elif result == "SETTINGS":
                 self.state = STATE_SETTINGS
             elif result == "QUIT":
@@ -154,13 +163,26 @@ class Application:
                     # Show analysis
                     if self.game_manager.last_analysis:
                         self.analysis_screen.set_analysis(self.game_manager.last_analysis)
-                        self.state = "ANALYSIS"
+                        self.state = STATE_ANALYSIS
                 elif event.key == pygame.K_s:
                     # Save game
                     try:
                         path = self.game_manager.save_game()
                     except Exception:
                         pass
+                elif event.key == pygame.K_l:
+                    # Show leaderboard
+                    self.leaderboard_screen.refresh(
+                        self.config.get("player_name", "Player")
+                    )
+                    if self.game_manager.last_rating_change:
+                        rc = self.game_manager.last_rating_change
+                        self.leaderboard_screen.set_rating_change({
+                            "change": rc.change,
+                            "new_rating": rc.new_rating,
+                            "promoted": rc.promoted,
+                        })
+                    self.state = STATE_LEADERBOARD
             return
 
         self.game_manager.handle_event(event)
@@ -187,6 +209,12 @@ class Application:
                     self.game_manager.save_game()
                 except Exception:
                     pass
+
+    def _handle_leaderboard_event(self, event: pygame.event.Event) -> None:
+        result = self.leaderboard_screen.handle_event(event)
+        if result == "BACK":
+            self.state = STATE_MENU
+            self.sub_state = "MAIN"
 
     # ── Game Management ─────────────────────────────────────────
 
@@ -226,8 +254,11 @@ class Application:
         elif self.state == STATE_SETTINGS:
             self.settings_menu.draw(self.screen)
 
-        elif self.state == "ANALYSIS":
+        elif self.state == STATE_ANALYSIS:
             self.analysis_screen.draw(self.screen)
+
+        elif self.state == STATE_LEADERBOARD:
+            self.leaderboard_screen.draw(self.screen)
 
     def _draw_game(self) -> None:
         gm = self.game_manager
