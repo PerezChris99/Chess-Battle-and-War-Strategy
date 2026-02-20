@@ -51,6 +51,12 @@ class AIEngine:
         self.search_time = 0.0
         self._best_move_root: Optional[chess.Move] = None
         self._abort = False
+        self._time_limit: float = 0.0  # 0 = no limit
+        self._search_start: float = 0.0
+        # Killer moves heuristic (2 slots per depth)
+        self._killers: dict[int, list[chess.Move]] = {}
+        # History heuristic table
+        self._history_table: dict[tuple[int, int], int] = {}
 
     def set_difficulty(self, difficulty: str) -> None:
         self.difficulty = difficulty
@@ -80,12 +86,21 @@ class AIEngine:
 
         # 3) Iterative deepening search
         best_move = legal[0]
+        self._search_start = start
+        # Time limits per difficulty (seconds)
+        time_limits = {"RECRUIT": 1.0, "SOLDIER": 2.0, "CAPTAIN": 4.0, "GENERAL": 8.0, "MAGNUS": 15.0}
+        self._time_limit = time_limits.get(self.difficulty, 5.0)
+        self._killers.clear()
+        self._history_table.clear()
+
         for d in range(1, self.depth + 1):
             self._best_move_root = None
             score = self._alpha_beta(
                 board, d, -50000, 50000,
                 board.turn == chess.WHITE,
             )
+            if self._abort:
+                break
             if self._best_move_root:
                 best_move = self._best_move_root
 
@@ -120,6 +135,12 @@ class AIEngine:
         self.nodes_searched += 1
         alpha_orig = alpha
 
+        # Time limit check (every 4096 nodes)
+        if self._time_limit > 0 and self.nodes_searched % 4096 == 0:
+            if time.time() - self._search_start > self._time_limit:
+                self._abort = True
+                return 0
+
         # Transposition table probe
         key = chess.polyglot.zobrist_hash(board)
         tt_entry = self.tt.get(key)
@@ -146,7 +167,7 @@ class AIEngine:
             return self._quiescence(board, alpha, beta, maximizing, self.MAX_QUIESCE_DEPTH)
 
         # Move ordering (crucial for alpha-beta efficiency)
-        moves = self._order_moves(board, tt_entry)
+        moves = self._order_moves(board, tt_entry, depth)
 
         best_score = -50000 if maximizing else 50000
         best_move = moves[0] if moves else None
@@ -155,6 +176,9 @@ class AIEngine:
             board.push(move)
             score = self._alpha_beta(board, depth - 1, alpha, beta, not maximizing)
             board.pop()
+
+            if self._abort:
+                return best_score
 
             if maximizing:
                 if score > best_score:
@@ -168,6 +192,19 @@ class AIEngine:
                 beta = min(beta, score)
 
             if alpha >= beta:
+                # Track killer moves and history heuristic for quiet moves
+                if not board.is_capture(move) and not move.promotion:
+                    # Killer move
+                    if depth not in self._killers:
+                        self._killers[depth] = []
+                    killers = self._killers[depth]
+                    if move not in killers:
+                        killers.insert(0, move)
+                        if len(killers) > 2:
+                            killers.pop()
+                    # History table
+                    key = (move.from_square, move.to_square)
+                    self._history_table[key] = self._history_table.get(key, 0) + depth * depth
                 break  # prune
 
         # Store in TT
@@ -230,31 +267,41 @@ class AIEngine:
 
     # ── Move Ordering ───────────────────────────────────────────
 
-    def _order_moves(self, board: chess.Board, tt_entry: Optional[TTEntry]) -> list[chess.Move]:
+    def _order_moves(self, board: chess.Board, tt_entry: Optional[TTEntry],
+                     depth: int = 0) -> list[chess.Move]:
         """Order moves for better alpha-beta pruning.
 
         Priority:
           1. TT best move (from previous iteration)
           2. Captures (MVV-LVA ordering)
-          3. Checks
-          4. Promotions
-          5. Quiet moves (by piece-square improvement)
+          3. Killer moves (quiet moves that caused cutoffs at this depth)
+          4. Checks
+          5. Promotions
+          6. History heuristic (quiet moves with historical success)
+          7. Remaining quiet moves
         """
         moves = list(board.legal_moves)
         scores: list[tuple[int, chess.Move]] = []
 
         tt_move = tt_entry.best_move if tt_entry else None
+        killers = self._killers.get(depth, [])
 
         for m in moves:
             score = 0
             if tt_move and m == tt_move:
                 score += 100000
-            if board.is_capture(m):
+            elif board.is_capture(m):
                 score += 10000 + self._mvv_lva(board, m)
-            if m.promotion:
+            elif m in killers:
+                score += 9500  # killer moves just below captures
+            elif m.promotion:
                 score += 9000 + (m.promotion * 100)
-            if board.gives_check(m):
+            elif board.gives_check(m):
                 score += 8000
+            else:
+                # History heuristic
+                h_key = (m.from_square, m.to_square)
+                score += min(self._history_table.get(h_key, 0), 7000)
             scores.append((score, m))
 
         scores.sort(key=lambda x: x[0], reverse=True)
