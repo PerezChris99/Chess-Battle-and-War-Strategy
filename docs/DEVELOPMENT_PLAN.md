@@ -432,4 +432,4 @@ The AI is tuned to replicate Magnus's distinctive characteristics:
 
 ---
 
-*"In chess, as in war, the one who sees further wins." — Chess Battle & War Strategy*
+*"Every square is a battlefield, every piece a soldier — think before you move." — Perez*

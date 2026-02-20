@@ -58,6 +58,14 @@ The tutorial system teaches chess through a military lens:
 
 See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for full architecture details.
 
+## 👤 Author
+
+**Perez**  
+🌐 [perezchris.netlify.app](https://perezchris.netlify.app)
+
 ---
 
-*"In chess, as in war, the one who sees further wins."*
+© 2026 Perez. All rights reserved.
+
+> *"Every square is a battlefield, every piece a soldier — think before you move."*  
+> — **Perez**, Chess Battle & War Strategy

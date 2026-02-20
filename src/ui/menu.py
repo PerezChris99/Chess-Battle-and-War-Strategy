@@ -140,12 +140,24 @@ class MainMenu:
         for btn in self.buttons:
             btn.draw(screen)
 
-        # Footer
-        footer = self._small_font.render(
-            "\"In chess, as in war, the one who sees further wins.\"",
+        # Footer — quote, author & copyright
+        quote = self._small_font.render(
+            "\"Every square is a battlefield, every piece a soldier — think before you move.\"",
             True, TEXT_DIM,
         )
-        screen.blit(footer, ((WINDOW_WIDTH - footer.get_width()) // 2, WINDOW_HEIGHT - 40))
+        screen.blit(quote, ((WINDOW_WIDTH - quote.get_width()) // 2, WINDOW_HEIGHT - 78))
+
+        credit = self._small_font.render(
+            "Created by Perez  ·  perezchris.netlify.app",
+            True, TEXT_BLUE,
+        )
+        screen.blit(credit, ((WINDOW_WIDTH - credit.get_width()) // 2, WINDOW_HEIGHT - 55))
+
+        copy_text = self._small_font.render(
+            "© 2026 Perez. All rights reserved.",
+            True, TEXT_DIM,
+        )
+        screen.blit(copy_text, ((WINDOW_WIDTH - copy_text.get_width()) // 2, WINDOW_HEIGHT - 35))
 
 
 class NewGameSetup:

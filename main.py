@@ -1,6 +1,9 @@
 """
 Chess Battle & War Strategy — Main Entry Point.
 
+Copyright (c) 2026 Perez. All rights reserved.
+Website: https://perezchris.netlify.app
+
 Launches the Pygame application, manages the top-level game loop,
 and delegates to the appropriate screen (menu, game, tutorial, settings).
 """
