@@ -140,24 +140,30 @@ class MainMenu:
         for btn in self.buttons:
             btn.draw(screen)
 
-        # Footer — quote, author & copyright
-        quote = self._small_font.render(
-            "\"Every square is a battlefield, every piece a soldier — think before you move.\"",
-            True, TEXT_DIM,
+        # Footer — visionary quote, author & copyright
+        q_line1 = self._desc_font.render(
+            '"The board remembers what the mind forgets —',
+            True, TEXT_GOLD,
         )
-        screen.blit(quote, ((WINDOW_WIDTH - quote.get_width()) // 2, WINDOW_HEIGHT - 78))
+        q_line2 = self._desc_font.render(
+            'every sacrifice carries the weight of war,',
+            True, TEXT_GOLD,
+        )
+        q_line3 = self._desc_font.render(
+            'and only those who master patience will conquer."',
+            True, TEXT_GOLD,
+        )
+        q_attr = self._small_font.render('— Perez', True, TEXT_DIM)
+        screen.blit(q_line1, ((WINDOW_WIDTH - q_line1.get_width()) // 2, WINDOW_HEIGHT - 105))
+        screen.blit(q_line2, ((WINDOW_WIDTH - q_line2.get_width()) // 2, WINDOW_HEIGHT - 87))
+        screen.blit(q_line3, ((WINDOW_WIDTH - q_line3.get_width()) // 2, WINDOW_HEIGHT - 69))
+        screen.blit(q_attr, ((WINDOW_WIDTH - q_attr.get_width()) // 2, WINDOW_HEIGHT - 52))
 
         credit = self._small_font.render(
-            "Created by Perez  ·  perezchris.netlify.app",
+            "Created by Perez  ·  perezchris.netlify.app  ·  © 2026",
             True, TEXT_BLUE,
         )
-        screen.blit(credit, ((WINDOW_WIDTH - credit.get_width()) // 2, WINDOW_HEIGHT - 55))
-
-        copy_text = self._small_font.render(
-            "© 2026 Perez. All rights reserved.",
-            True, TEXT_DIM,
-        )
-        screen.blit(copy_text, ((WINDOW_WIDTH - copy_text.get_width()) // 2, WINDOW_HEIGHT - 35))
+        screen.blit(credit, ((WINDOW_WIDTH - credit.get_width()) // 2, WINDOW_HEIGHT - 30))
 
 
 class NewGameSetup:
