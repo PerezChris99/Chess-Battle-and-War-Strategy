@@ -73,23 +73,25 @@ class MainMenu:
         self._desc_font = pygame.font.SysFont("Segoe UI", 15)
 
         # Buttons
-        bw, bh = 280, 50
+        bw, bh = 280, 48
         cx = WINDOW_WIDTH // 2 - bw // 2
-        by = 340
+        by = 280
 
         self.btn_new_game = Button(cx, by, bw, bh, "⚔  NEW BATTLE", self._button_font,
                                    BUTTON_GOLD, BUTTON_GOLD_HOVER, (30, 30, 30))
-        self.btn_tutorial = Button(cx, by + 70, bw, bh, "📖  WAR ACADEMY", self._button_font)
-        self.btn_leaderboard = Button(cx, by + 140, bw, bh, "🏆  LEADERBOARD", self._button_font,
+        self.btn_tutorial = Button(cx, by + 60, bw, bh, "📖  WAR ACADEMY", self._button_font)
+        self.btn_arena = Button(cx, by + 120, bw, bh, "🤖  AI ARENA", self._button_font,
+                                (50, 60, 75), (70, 80, 100))
+        self.btn_leaderboard = Button(cx, by + 180, bw, bh, "🏆  LEADERBOARD", self._button_font,
                                       (60, 70, 50), (80, 95, 65))
-        self.btn_trophies = Button(cx, by + 210, bw, bh, "🎖  TROPHIES", self._button_font,
+        self.btn_trophies = Button(cx, by + 240, bw, bh, "🎖  TROPHIES", self._button_font,
                                    (70, 55, 70), (95, 70, 95))
-        self.btn_settings = Button(cx, by + 280, bw, bh, "⚙  SETTINGS", self._button_font)
-        self.btn_quit     = Button(cx, by + 350, bw, bh, "🚪  RETREAT", self._button_font,
+        self.btn_settings = Button(cx, by + 300, bw, bh, "⚙  SETTINGS", self._button_font)
+        self.btn_quit     = Button(cx, by + 360, bw, bh, "🚪  RETREAT", self._button_font,
                                    (80, 40, 40), (110, 50, 50))
 
-        self.buttons = [self.btn_new_game, self.btn_tutorial, self.btn_leaderboard,
-                        self.btn_trophies, self.btn_settings, self.btn_quit]
+        self.buttons = [self.btn_new_game, self.btn_tutorial, self.btn_arena,
+                        self.btn_leaderboard, self.btn_trophies, self.btn_settings, self.btn_quit]
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         """Returns action string or None."""
@@ -103,6 +105,8 @@ class MainMenu:
                 return "TUTORIAL"
             if self.btn_leaderboard.is_clicked(event.pos):
                 return "LEADERBOARD"
+            if self.btn_arena.is_clicked(event.pos):
+                return "ARENA"
             if self.btn_trophies.is_clicked(event.pos):
                 return "TROPHIES"
             if self.btn_settings.is_clicked(event.pos):

@@ -58,6 +58,8 @@ class GameManager:
         self.stats_tracker = StatsTracker()
         self.achievements = AchievementEngine()
         self.prize_manager = PrizeManager()
+        self.arena_adapter = None  # Set externally for arena mode
+        self.arena_manager = None  # Set externally for arena mode
         self.last_analysis: Optional[GameAnalysis] = None
         self.last_rating_change: Optional[RatingChange] = None
         self.last_unlocked_achievements: list[AchievementDef] = []
@@ -403,11 +405,45 @@ class GameManager:
         """Run AI thinking in a background thread."""
         self.ai_thinking = True
 
+        # Use external arena adapter if set
+        if self.arena_adapter is not None:
+            self._schedule_arena_ai_move()
+            return
+
         def think():
             time.sleep(AI_THINK_DELAY)
             move = self.ai.get_best_move(self.engine.board)
             if move:
                 # Post a custom event to execute on the main thread
+                pygame.event.post(pygame.event.Event(
+                    pygame.USEREVENT + 1,
+                    {"ai_move": move},
+                ))
+
+        thread = threading.Thread(target=think, daemon=True)
+        thread.start()
+
+    def _schedule_arena_ai_move(self) -> None:
+        """Run external AI (arena adapter) thinking in a background thread."""
+        move_history = [m.uci for m in self.history.moves]
+
+        def think():
+            result = self.arena_adapter.get_move(self.engine.board, move_history)
+            if result.uci_move and not result.error:
+                try:
+                    move = chess.Move.from_uci(result.uci_move)
+                    if move in self.engine.board.legal_moves:
+                        pygame.event.post(pygame.event.Event(
+                            pygame.USEREVENT + 1,
+                            {"ai_move": move},
+                        ))
+                        return
+                except (ValueError, chess.InvalidMoveError):
+                    pass
+            # Fallback to built-in AI on failure
+            time.sleep(AI_THINK_DELAY)
+            move = self.ai.get_best_move(self.engine.board)
+            if move:
                 pygame.event.post(pygame.event.Event(
                     pygame.USEREVENT + 1,
                     {"ai_move": move},
