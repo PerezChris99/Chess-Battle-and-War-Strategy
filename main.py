@@ -21,7 +21,7 @@ from src.utils.constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TITLE, BG_COLOR,
     STATE_MENU, STATE_PLAYING, STATE_GAME_OVER,
     STATE_TUTORIAL, STATE_SETTINGS, STATE_LEADERBOARD, STATE_ANALYSIS,
-    STATE_TROPHIES,
+    STATE_TROPHIES, STATE_ARENA,
 )
 from src.utils.config import Config
 from src.game.game_manager import GameManager
@@ -31,6 +31,9 @@ from src.ui.menu import MainMenu, NewGameSetup, SettingsMenu
 from src.ui.analysis_screen import AnalysisScreen
 from src.ui.leaderboard_screen import LeaderboardScreen
 from src.ui.trophy_cabinet import TrophyCabinet
+from src.ui.arena_screen import ArenaScreen
+from src.engine.arena_manager import ArenaManager
+from src.engine.arena_adapter import create_adapter
 from src.tutorial.lesson_manager import LessonManager
 
 
@@ -59,6 +62,8 @@ class Application:
         self.analysis_screen = AnalysisScreen()
         self.leaderboard_screen = LeaderboardScreen()
         self.trophy_cabinet = TrophyCabinet()
+        self.arena_screen = ArenaScreen()
+        self.arena_manager = ArenaManager()
 
         # Game state
         self.state = STATE_MENU
@@ -119,6 +124,8 @@ class Application:
             self._handle_leaderboard_event(event)
         elif self.state == STATE_TROPHIES:
             self._handle_trophies_event(event)
+        elif self.state == STATE_ARENA:
+            self._handle_arena_event(event)
 
     def _handle_menu_event(self, event: pygame.event.Event) -> None:
         if self.sub_state == "MAIN":
@@ -137,6 +144,11 @@ class Application:
                     self.config.get("player_name", "Player")
                 )
                 self.state = STATE_TROPHIES
+            elif result == "ARENA":
+                self.arena_screen.set_model_profiles(
+                    self.arena_manager.get_all_models()
+                )
+                self.state = STATE_ARENA
             elif result == "SETTINGS":
                 self.state = STATE_SETTINGS
             elif result == "QUIT":
@@ -238,6 +250,14 @@ class Application:
             self.state = STATE_MENU
             self.sub_state = "MAIN"
 
+    def _handle_arena_event(self, event: pygame.event.Event) -> None:
+        result = self.arena_screen.handle_event(event)
+        if result == "BACK":
+            self.state = STATE_MENU
+            self.sub_state = "MAIN"
+        elif isinstance(result, dict) and result.get("action") == "START_ARENA":
+            self._start_arena_match(result)
+
     # ── Game Management ─────────────────────────────────────────
 
     def _start_game(self, difficulty: str, player_color: str, time_control: str) -> None:
@@ -249,6 +269,41 @@ class Application:
         })
         self.game_manager = GameManager(self.config)
         self.game_manager.new_game(difficulty, player_color)
+        self.state = STATE_PLAYING
+        self.sub_state = "MAIN"
+
+    def _start_arena_match(self, settings: dict) -> None:
+        """Initialize an arena match with an external AI model."""
+        model_id = settings["model_id"]
+        api_key = settings["api_key"]
+        player_color = settings.get("player_color", "white")
+        gemini_model = settings.get("gemini_model", "gemini-2.0-flash")
+
+        # Create and configure adapter
+        adapter = create_adapter(model_id)
+        if not adapter:
+            return
+        adapter.configure(api_key, model_name=gemini_model)
+        if not adapter.is_configured:
+            return
+
+        # Register model in arena
+        self.arena_manager.register_model(adapter)
+
+        # Start as a regular game against "MAGNUS" difficulty
+        # The game_manager will be used for board/UI, but the external AI
+        # makes the moves instead of the built-in engine.
+        self.config.update({
+            "difficulty": "MAGNUS",
+            "player_color": player_color,
+            "time_control": "unlimited",
+            "arena_mode": True,
+            "arena_model_id": model_id,
+        })
+        self.game_manager = GameManager(self.config)
+        self.game_manager.arena_adapter = adapter
+        self.game_manager.arena_manager = self.arena_manager
+        self.game_manager.new_game("MAGNUS", player_color)
         self.state = STATE_PLAYING
         self.sub_state = "MAIN"
 
@@ -284,6 +339,9 @@ class Application:
 
         elif self.state == STATE_TROPHIES:
             self.trophy_cabinet.draw(self.screen)
+
+        elif self.state == STATE_ARENA:
+            self.arena_screen.draw(self.screen)
 
     def _draw_game(self) -> None:
         gm = self.game_manager

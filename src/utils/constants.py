@@ -125,6 +125,7 @@ STATE_PROMOTION  = "PROMOTION"
 STATE_LEADERBOARD = "LEADERBOARD"
 STATE_ANALYSIS   = "ANALYSIS"
 STATE_TROPHIES   = "TROPHIES"
+STATE_ARENA      = "ARENA"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Animation & Timing
